@@ -69,17 +69,27 @@ export class StationService {
       res.Enable = station.Enable === 'true' ? true : false;
       res.Location = station.Location;
       res.Name = station.Name;
+      res.Columns = {};
 
       for (const key in station.Columns) {
         res.Columns[key] = [];
 
         for (const fuel of station.Columns[key].Fuels) {
           const prices = priceMap.get(id);
+          if (!prices) {
+            res.Columns[key].push({
+              Fuel: fuel,
+              Price: 0,
+            });
+
+            continue;
+          }
+
           const price = prices[fuel];
 
           res.Columns[key].push({
             Fuel: fuel,
-            Price: price,
+            Price: price ?? 0,
           });
         }
       }
@@ -109,7 +119,7 @@ export class StationService {
         /** TODO: validate incoming data */
         return response.data as T[];
       } catch (error) {
-        this.logger.error(error.respone);
+        this.logger.error(JSON.stringify(error));
         i += 1;
       }
     }
