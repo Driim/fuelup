@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.3.0/json2html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
+
+    <!-- Visualizer Core -->
+    <link href="./css/visualizer.css" rel="stylesheet">
+    <script src="./lib/visualizer.js"></script>
+
+</head>
+
+<body>
+    <div id="output"></div>
+</body>
+
+<script>
+
+    fetch('http://localhost:3000/station', {mode: 'cors'})
+        .then((response) => {
+            
+            return response.json()
+        })
+        .then((stations) => {
+            $(function(){
+                
+                //Create a new visualizer object
+                const _visualizer = new visualizer($("#output"));
+                
+                //Visualize the demo json object
+                _visualizer.visualize(stations);
+            
+            });
+        })
+</script>
+
+</html>
