@@ -40,11 +40,10 @@ export class StationService {
       return null;
     }
 
-    const stationMap = stations.reduce((acc, station) => {
-      acc.set(station.Id, station);
-      return acc;
-    }, new Map<string, StationFuelupDto>());
-
+    /**
+     * Создаем Map с ценами для удобного и эффективного
+     * поиска на следующем этапе
+     */
     const priceMap = prices.reduce((acc, price) => {
       let prices: Record<string, number> = {};
 
@@ -60,11 +59,10 @@ export class StationService {
 
     const result: StationResponseDto[] = [];
 
-    for (const id of stationMap.keys()) {
-      const station = stationMap.get(id);
+    for (const station of stations) {
       const res = new StationResponseDto();
 
-      res.Id = id;
+      res.Id = station.Id;
       res.Address = station.Address;
       res.Enable = station.Enable === 'true' ? true : false;
       res.Location = station.Location;
@@ -75,7 +73,13 @@ export class StationService {
         res.Columns[key] = [];
 
         for (const fuel of station.Columns[key].Fuels) {
-          const prices = priceMap.get(id);
+          const prices = priceMap.get(station.Id);
+
+          /**
+           * FIXME:
+           * Что делать если нет цен к этой станции?
+           * Сделал что бы возвращало цену 0, но нужно уточнить
+           */
           if (!prices) {
             res.Columns[key].push({
               Fuel: fuel,
