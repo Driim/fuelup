@@ -1,5 +1,5 @@
 import {
-  IsBooleanString,
+  IsBoolean,
   IsLatLong,
   IsString,
   ValidateNested,
@@ -17,8 +17,8 @@ export class StationFuelupDto {
   @IsString()
   Id: string;
 
-  @IsBooleanString()
-  Enable: string;
+  @IsBoolean()
+  Enable: boolean;
 
   @IsString()
   Name: string;
@@ -31,8 +31,6 @@ export class StationFuelupDto {
 
   /** TODO: validation */
   Columns: {
-    [k: string]: {
-      Fuels: string[];
-    };
+    [k: string]: string[];
   };
 }

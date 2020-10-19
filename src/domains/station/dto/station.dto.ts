@@ -1,11 +1,7 @@
 import { ApiExtraModels, ApiResponseProperty } from '@nestjs/swagger';
 
 export class StationFuelDto {
-  @ApiResponseProperty()
-  Fuel: string;
-
-  @ApiResponseProperty()
-  Price: number;
+  [k: string]: number;
 }
 
 export class LocationDto {
@@ -54,6 +50,6 @@ export class StationResponseDto {
    */
   @ApiResponseProperty()
   Columns: {
-    [k: string]: StationFuelDto[];
+    [k: string]: StationFuelDto;
   };
 }

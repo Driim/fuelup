@@ -2,7 +2,7 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class PriceFuelupDto {
   @IsString()
-  StationID: string;
+  StationId: string;
 
   @IsString()
   ProductId: string;

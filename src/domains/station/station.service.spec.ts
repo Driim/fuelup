@@ -36,7 +36,7 @@ describe('Fuelup', () => {
   it('should return prepared data', async () => {
     const id = '1';
     (axios as any).mockImplementation((options) => {
-      if (options.url === '/v1/station') {
+      if (options.url === '/tanker/station') {
         const dto = new StationFuelupDto();
         dto.Id = id;
         dto.Name = 'test';
@@ -44,39 +44,35 @@ describe('Fuelup', () => {
           Lat: 1,
           Lon: 1,
         };
-        dto.Enable = 'true';
+        dto.Enable = true;
         dto.Address = 'test address';
         dto.Columns = {
-          '1': {
-            Fuels: ['a92', 'a95', 'a95_premium']
-          },
-          '2': {
-            Fuels: ['diesel', 'diesel_premium']
-          }
+          '1': ['a92', 'a95', 'a95_premium'],
+          '2': ['diesel', 'diesel_premium']
         }
         return Promise.resolve({ data: [dto] });
       }
       
-      if (options.url === '/v1/price') {
+      if (options.url === '/tanker/price') {
         const result: PriceFuelupDto[] = [];
 
         result.push(new PriceFuelupDto());
-        result[0].StationID = id;
+        result[0].StationId = id;
         result[0].ProductId = 'a92';
         result[0].Price = 5;
 
         result.push(new PriceFuelupDto());
-        result[1].StationID = id;
+        result[1].StationId = id;
         result[1].ProductId = 'a95';
         result[1].Price = 10;
 
         result.push(new PriceFuelupDto());
-        result[2].StationID = id;
+        result[2].StationId = id;
         result[2].ProductId = 'a95_premium';
         result[2].Price = 20;
 
         result.push(new PriceFuelupDto());
-        result[3].StationID = id;
+        result[3].StationId = id;
         result[3].ProductId = 'diesel';
         result[3].Price = 40;
 
@@ -90,10 +86,9 @@ describe('Fuelup', () => {
 
     expect(result.length).toBe(1);
     expect(result[0].Id).toBe(id);
-    expect(result[0].Columns['1'].length).toBe(3);
-    expect(result[0].Columns['1'][0].Price).toBe(5);
+    expect(result[0].Columns['1']['a92']).toBe(5);
     /** diesel_premium */
-    expect(result[0].Columns['2'][1].Price).toBe(0);
+    expect(result[0].Columns['2']['diesel_premium']).toBeUndefined();
   });
 
   afterAll(async () => {

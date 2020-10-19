@@ -3,6 +3,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { StationFuelupDto, StationResponseDto, PriceFuelupDto } from './dto';
 
+const STATION_URL = '/tanker/station';
+const PRICE_URL = '/tanker/price';
+
 @Injectable()
 export class StationService {
   private readonly logger = new Logger(StationService.name);
@@ -21,7 +24,7 @@ export class StationService {
     try {
       stations = await this.makeRequest<StationFuelupDto>(
         this.serverUrl,
-        '/v1/station',
+        STATION_URL,
         { apikey: this.apikey },
       );
     } catch (error) {
@@ -33,7 +36,7 @@ export class StationService {
     try {
       prices = await this.makeRequest<PriceFuelupDto>(
         this.serverUrl,
-        '/v1/price',
+        PRICE_URL,
         { apikey: this.apikey },
       );
     } catch (error) {
@@ -47,12 +50,12 @@ export class StationService {
     const priceMap = prices.reduce((acc, price) => {
       let prices: Record<string, number> = {};
 
-      if (acc.has(price.StationID)) {
-        prices = acc.get(price.StationID);
+      if (acc.has(price.StationId)) {
+        prices = acc.get(price.StationId);
       }
 
       prices[price.ProductId] = price.Price;
-      acc.set(price.StationID, prices);
+      acc.set(price.StationId, prices);
 
       return acc;
     }, new Map<string, Record<string, number>>());
@@ -64,15 +67,15 @@ export class StationService {
 
       res.Id = station.Id;
       res.Address = station.Address;
-      res.Enable = station.Enable === 'true' ? true : false;
+      res.Enable = station.Enable;
       res.Location = station.Location;
       res.Name = station.Name;
       res.Columns = {};
 
       for (const key in station.Columns) {
-        res.Columns[key] = [];
+        const column = {};
 
-        for (const fuel of station.Columns[key].Fuels) {
+        for (const fuel of station.Columns[key]) {
           const prices = priceMap.get(station.Id);
 
           /**
@@ -81,25 +84,18 @@ export class StationService {
            * Сделал что бы возвращало цену 0, но нужно уточнить
            */
           if (!prices) {
-            res.Columns[key].push({
-              Fuel: fuel,
-              Price: 0,
-            });
-
-            continue;
+            column[fuel] = 0;
           }
 
-          const price = prices[fuel];
-
-          res.Columns[key].push({
-            Fuel: fuel,
-            Price: price ?? 0,
-          });
+          column[fuel] = prices ? prices[fuel] : 0;
         }
+
+        res.Columns[key] = column;
       }
 
       result.push(res);
     }
+
 
     return result;
   }
